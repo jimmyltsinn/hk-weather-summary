@@ -10,30 +10,30 @@ var fetch_data = (db, year) => {
     .then((data) => {
       if (!fs.existsSync(download_dir)) fs.mkdirSync(download_dir);
       fs.writeFileSync(download_path, data);
-      console.log(`Finish write ${download_path}`);
     }).then(() => process_solar_term_pdf(year, download_path)
     ).then(() => {
       fs.unlinkSync(download_path);
+      console.log(`Finish handling solar term data of ${year}`);
     }).catch(console.error);
 };
 
 var process_solar_term_pdf = (year, path) => {
   return new Promise((fulfill, reject) => {
-    console.log(`To Open ${path}`);
     extract(path, (err, pages) => {
         if (err) reject(err);
 
         var text = pages[0];
         var lines = text.split('\n');
 
-        var re_month = /^([0-9]+)/;
-        var re_solar_term = /(..)[：|:] ([0-9]*)日$/;
+        var re_month = /^[ ]*([0-9]+)/;
+        var re_solar_term = /([^ ]{2})[：|:] ([0-9]+)[ ]{0,1}日/;
 
         var obj = {};
-
         for (var i = 0; i < lines.length; ++i) {
           var line = lines[i];
           var match = re_solar_term.exec(line);
+          // console.log(line);
+          // console.log(match);
           if (!match) continue;
           var day = {
             year: year,
@@ -48,12 +48,12 @@ var process_solar_term_pdf = (year, path) => {
           }
           obj[match[1]] = day;
         }
-        console.log(obj);
+        // console.log(obj);
         fulfill(obj);
     });
   });
 };
 
-for (var i = 2000; i < 2020; ++i) {
+for (var i = 1901; i <= 2100; ++i) {
   fetch_data(null, i);
 }
