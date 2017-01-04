@@ -3,23 +3,13 @@ let extract = require('pdf-text-extract');
 let download = require('download');
 let solar_term = require('./solar-term.js');
 let unorm = require('unorm');
+let database = require('./database.js');
 
-let fetch_data = (db, year) => {
-  let download_dir = `tmp`;
-  let download_path = `${download_dir}/${year}.pdf`;
-  console.log(`Downloading solar term data of ${year} ...`);
-  download(`http://www.hko.gov.hk/gts/time/calendar/pdf/${year}.pdf`)
-    .then((data) => {
-      if (!fs.existsSync(download_dir)) fs.mkdirSync(download_dir);
-      fs.writeFileSync(download_path, data);
-    }).then(() => process_solar_term_pdf(year, download_path)
-    ).then(() => {
-      fs.unlinkSync(download_path);
-      console.log(`Finish handling solar term data of ${year}`);
-    }).catch(console.error);
+let download_solar_term_data = (year) => {
+  return download(`http://www.hko.gov.hk/gts/time/calendar/pdf/${year}.pdf`);
 };
 
-let process_solar_term_pdf = (year, path) => {
+let parse_solar_term_pdf = (year, path) => {
   return new Promise((resolve, reject) => {
     extract(path, (err, pages) => {
         if (err) reject(err);
@@ -47,19 +37,45 @@ let process_solar_term_pdf = (year, path) => {
             if (j > i) break;
           }
           obj[unorm.nfd(match[1])] = day;
+          day.solar_term_id = solar_term.get_id(match[1]);
         }
-        console.log(obj);
-        let tmp = {};
-        for (let key in obj) {
-          if (!obj.hasOwnProperty(key)) continue;
-          tmp[solar_term.get_id(key)] = 1;
-        }
-        for (let j = 1; j <= 24; ++j) if (tmp[j] != 1) throw -1;
+        // console.log(obj);
+        // let tmp = {};
+        // for (let key in obj) {
+        //   if (!obj.hasOwnProperty(key)) continue;
+        //   tmp[solar_term.get_id(key)] = 1;
+        // }
+        // for (let j = 1; j <= 24; ++j) if (tmp[j] != 1) throw -1;
         resolve(obj);
     });
   });
 };
 
-for (let i = 2033; i <= 2033; ++i) {
-  fetch_data(null, i);
-}
+let fetch_solar_term = (db, year_range) => {
+  return new Promise((resolve, reject) => {
+    let download_dir = `tmp`;
+    if (!fs.existsSync(download_dir)) fs.mkdirSync(download_dir);
+
+    let promises = [];
+    for (let i = year_range[0]; i <= year_range[1]; ++i) {
+      let download_path = `${download_dir}/${i}.pdf`;
+      promises.push(
+        download_solar_term_data(i)
+          .then((data) => fs.writeFileSync(download_path, data))
+          .then(() => parse_solar_term_pdf(i, download_path))
+          .then((data) => database.insert_solar_term_batch(db, i, data))
+          .then(() => {
+            console.log(`Finish handling solar term data of ${i}`);
+            fs.unlinkSync(download_path);
+          })
+      );
+    }
+    Promise.all(promises)
+      .then(resolve)
+      .catch(reject);
+  });
+};
+
+database.connect()
+  .then((db) => fetch_solar_term(db, [1901, 2100]))
+  .catch(console.error);

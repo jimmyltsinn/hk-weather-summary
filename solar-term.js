@@ -31,10 +31,11 @@ let map = {
 
 let get_id = (name) => {
   for (let key in map) {
-    if (map[key] === name) {
+    if (unorm.nfd(map[key]) === unorm.nfd(name)) {
       return key;
     }
   }
+  console.error([name]);
   throw -1;
 };
 

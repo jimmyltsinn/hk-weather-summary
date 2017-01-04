@@ -65,4 +65,5 @@ let fetch_weather = (db, year_range) => {
 };
 
 database.connect()
-  .then((db) => fetch_weather(db, [1886, 2016]));
+  .then((db) => fetch_weather(db, [1886, 2016]))
+  .catch(console.error);
