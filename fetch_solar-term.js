@@ -1,10 +1,10 @@
-var fs = require('fs');
-var extract = require('pdf-text-extract');
-var download = require('download');
+let fs = require('fs');
+let extract = require('pdf-text-extract');
+let download = require('download');
 
-var fetch_data = (db, year) => {
-  var download_dir = `tmp`;
-  var download_path = `${download_dir}/${year}.pdf`;
+let fetch_data = (db, year) => {
+  let download_dir = `tmp`;
+  let download_path = `${download_dir}/${year}.pdf`;
   console.log(`Downloading solar term data of ${year} ...`);
   download(`http://www.hko.gov.hk/gts/time/calendar/pdf/${year}.pdf`)
     .then((data) => {
@@ -17,30 +17,30 @@ var fetch_data = (db, year) => {
     }).catch(console.error);
 };
 
-var process_solar_term_pdf = (year, path) => {
-  return new Promise((fulfill, reject) => {
+let process_solar_term_pdf = (year, path) => {
+  return new Promise((resolve, reject) => {
     extract(path, (err, pages) => {
         if (err) reject(err);
 
-        var text = pages[0];
-        var lines = text.split('\n');
+        let text = pages[0];
+        let lines = text.split('\n');
 
-        var re_month = /^[ ]*([0-9]+)/;
-        var re_solar_term = /([^ ]{2})[：|:] ([0-9]+)[ ]{0,1}日/;
+        let re_month = /^[ ]*([0-9]+)/;
+        let re_solar_term = /([^ ]{2})[：|:] ([0-9]+)[ ]{0,1}日/;
 
-        var obj = {};
-        for (var i = 0; i < lines.length; ++i) {
-          var line = lines[i];
-          var match = re_solar_term.exec(line);
+        let obj = {};
+        for (let i = 0; i < lines.length; ++i) {
+          let line = lines[i];
+          let match = re_solar_term.exec(line);
           // console.log(line);
           // console.log(match);
           if (!match) continue;
-          var day = {
+          let day = {
             year: year,
             month: parseInt(re_month.exec(line) || null),
             date: parseInt(match[2])
           };
-          var j = 1;
+          let j = 1;
           while (!day.month) {
             day.month = parseInt(re_month.exec(lines[i - j]) || null);
             ++j;
@@ -49,11 +49,11 @@ var process_solar_term_pdf = (year, path) => {
           obj[match[1]] = day;
         }
         // console.log(obj);
-        fulfill(obj);
+        resolve(obj);
     });
   });
 };
 
-for (var i = 1901; i <= 2100; ++i) {
+for (let i = 1901; i <= 2100; ++i) {
   fetch_data(null, i);
 }
