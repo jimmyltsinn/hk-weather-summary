@@ -1,6 +1,8 @@
 let fs = require('fs');
 let extract = require('pdf-text-extract');
 let download = require('download');
+let solar_term = require('./solar-term.js');
+let unorm = require('unorm');
 
 let fetch_data = (db, year) => {
   let download_dir = `tmp`;
@@ -32,8 +34,6 @@ let process_solar_term_pdf = (year, path) => {
         for (let i = 0; i < lines.length; ++i) {
           let line = lines[i];
           let match = re_solar_term.exec(line);
-          // console.log(line);
-          // console.log(match);
           if (!match) continue;
           let day = {
             year: year,
@@ -46,14 +46,20 @@ let process_solar_term_pdf = (year, path) => {
             ++j;
             if (j > i) break;
           }
-          obj[match[1]] = day;
+          obj[unorm.nfd(match[1])] = day;
         }
-        // console.log(obj);
+        console.log(obj);
+        let tmp = {};
+        for (let key in obj) {
+          if (!obj.hasOwnProperty(key)) continue;
+          tmp[solar_term.get_id(key)] = 1;
+        }
+        for (let j = 1; j <= 24; ++j) if (tmp[j] != 1) throw -1;
         resolve(obj);
     });
   });
 };
 
-for (let i = 1901; i <= 2100; ++i) {
+for (let i = 2033; i <= 2033; ++i) {
   fetch_data(null, i);
 }
