@@ -180,7 +180,7 @@ let get_weather_year = (db, year) => {
 let get_solar_term_term = (db, term) => {
   return new Promise((resolve, reject) => {
     db.all(sql_solar_term_select_term, {
-      $term: term
+      $solar_term: term
     }, (err, rows) => {
       if (err) reject(err);
       let ret = {};

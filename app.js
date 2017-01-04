@@ -23,9 +23,27 @@ app.get('/weather/:year', (req, res) => {
     .catch(console.error);
 });
 
-app.get('/solar-term/:term'), (req, res) => {
-  
-}
+app.get('/solar-term/year/:year', (req, res) => {
+  if (req.params.term < 1901 || req.params.term > 2100) {
+    res.status(400);
+    res.send('Invalid input for year. ');
+  }
+  database.connect()
+    .then((db) => database.get_solar_term_year(db, req.params.year))
+    .then((data) => res.json(data))
+    .catch(console.error);
+});
+
+app.get('/solar-term/term/:term', (req, res) => {
+  if (req.params.term < 1 || req.params.term > 12) {
+    res.status(400);
+    res.send('Invalid input for solar term. ');
+  }
+  database.connect()
+    .then((db) => database.get_solar_term_term(db, req.params.term))
+    .then((data) => res.json(data))
+    .catch(console.error);
+});
 
 app.get('/', (req, res) => {
   res.send('Hihi world');
