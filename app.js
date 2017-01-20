@@ -2,6 +2,8 @@ let express = require('express');
 let database = require('./database.js');
 let app = express();
 
+let port = process.env.PORT || 3000;
+
 app.get('/weather/:year/:month/:date', (req, res) => {
   database.connect()
     .then((db) => database.get_weather_date(db, req.params.year, req.params.month, req.params.date))
@@ -46,9 +48,9 @@ app.get('/solar-term/term/:term', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Hihi world');
+  res.send(`HK Weather Summary data is serving on port ${port}`);
 });
 
-app.listen(3000, () => {
-  console.log('Example app listening on port 3000!');
+app.listen(port, () => {
+  console.log(`Listening on port ${port}!`);
 });
