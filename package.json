@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/jimmyltsinn/hk-weather-summary#readme",
   "dependencies": {
+    "cors": "^2.8.1",
     "download": "^5.0.2",
     "express": "^4.14.0",
     "lodash": "^4.17.4",
