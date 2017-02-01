@@ -1,11 +1,19 @@
 let express = require('express');
-let database = require('./database.js');
+let database = require('./db-util/database-select.js');
 let cors = require('cors');
+
 let app = express();
 
 let port = process.env.PORT || 3000;
 
 app.use(cors());
+
+app.get('/weather', (req, res) => {
+  database.connect()
+    .then(db => database.get_weather(db))
+    .then(data => res.json(data))
+    .catch(console.error);
+});
 
 app.get('/weather/:year/:month/:date', (req, res) => {
   database.connect()

@@ -10,7 +10,7 @@ This project also extract the solar term (節氣) of every year from the PDF fil
 1. This project uses `pdf-text-extract` in processing solar term data from Hong Kong Observatory. Before you run the `fetch_solar-term.js`, make sure you have `pdftotext` in your path.
 
   On macOS, `pdftotext` is included in `poppler`. You can install it with homebrew
-  ``` bash
+  ```bash
 brew install poppler
 ```
   On Ubuntu, it is included in `poppler-utils`:
@@ -20,17 +20,16 @@ sudo apt-get install poppler-utils
 Check [here](https://github.com/nisaacson/pdf-extract) for other operating system.
 
 ## Getting Started
-1. Install the dependencies with `$ npm install`.
+1. Install the dependencies with `npm install`.
 2. Fetch the weather data and solar term data from Hong Kong Observatory.
-  ``` bash
-node fetch_weather.js
-node fetch_solar-term.js
+  ```
+node setup.js
 ```
 3. Start the web server with either
-  ``` bash
+  ```
 node app.js
 ```
   or
-  ``` bash
+  ```
 npm start
 ```

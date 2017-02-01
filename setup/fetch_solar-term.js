@@ -1,11 +1,12 @@
 let fs = require('fs');
 let extract = require('pdf-text-extract');
 let download = require('download');
-let solar_term = require('./solar-term.js');
+let solar_term = require('../solar-term.js');
 let unorm = require('unorm');
-let database = require('./database.js');
+let database = require('../db-util/database.js');
 
 let download_solar_term_data = (year) => {
+  console.log(`[solarterm-${year}] Download`);
   return download(`http://www.hko.gov.hk/gts/time/calendar/pdf/${year}.pdf`);
 };
 
@@ -65,17 +66,16 @@ let fetch_solar_term = (db, year_range) => {
           .then(() => parse_solar_term_pdf(i, download_path))
           .then((data) => database.insert_solar_term_batch(db, i, data))
           .then(() => {
-            console.log(`Finish handling solar term data of ${i}`);
+            console.log(`[solarterm-${i}] Done`);
             fs.unlinkSync(download_path);
           })
       );
     }
     Promise.all(promises)
-      .then(resolve)
+      .then(() => resolve(db))
       .catch(reject);
   });
 };
 
-database.connect()
-  .then((db) => fetch_solar_term(db, [1901, 2100]))
-  .catch(console.error);
+// export default fetch_solar_term;
+module.exports = fetch_solar_term;

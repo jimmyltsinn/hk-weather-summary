@@ -1,8 +1,9 @@
 let request = require('request');
-let database = require('./database.js');
+let database = require('../db-util/database-insert.js');
 
 let download_weather_data = (year) => {
   return new Promise((resolve, reject) => {
+    console.log(`[weather-${year}] Download`); 
     request(`http://www.hko.gov.hk/cis/dailyExtract/dailyExtract_${year}.xml`, (err, res, body) => {
       if (err) reject(err);
       try {
@@ -55,15 +56,15 @@ let fetch_weather = (db, year_range) => {
           download_weather_data(i)
             .then(data => parse_weather_data(data, i))
             .then(data => database.insert_weather_batch(db, i, data))
+            .then(() => console.log(`[weather-${i}] Done`))
             .catch(console.error)
           );
     }
     Promise.all(promises)
-      .then(resolve)
+      .then(() => resolve(db))
       .catch(reject);
   });
 };
 
-database.connect()
-  .then((db) => fetch_weather(db, [1886, 2016]))
-  .catch(console.error);
+// export default fetch_weather;
+module.exports = fetch_weather;
