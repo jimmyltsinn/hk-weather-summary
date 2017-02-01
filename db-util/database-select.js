@@ -1,11 +1,13 @@
-const sql_weather_select_all = 'SELECT * FROM weather';
-const sql_weather_select_year = 'SELECT * FROM weather WHERE year = $year';
-const sql_weather_select_month = 'SELECT * FROM weather WHERE year = $year AND month = $month';
-const sql_weather_select_date = 'SELECT * FROM weather WHERE year = $year AND month = $month AND date = $date';
-const sql_weather_select_date_by_year = 'SELECT * FROM weather WHERE month = $month AND date = $date';
+const fields = 'temp_max, temp_mean, temp_min';
 
-const sql_solar_term_select_year = 'SELECT * FROM solar_term WHERE year = $year';
-const sql_solar_term_select_term = 'SELECT * FROM solar_term WHERE solar_term = $solar_term';
+const sql_weather_select_all = `SELECT year, month, date, ${fields} FROM weather`;
+const sql_weather_select_year = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year`;
+const sql_weather_select_month = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year AND month = $month`;
+const sql_weather_select_date = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year AND month = $month AND date = $date`;
+const sql_weather_select_date_by_year = `SELECT year, month, date, ${fields} FROM weather WHERE month = $month AND date = $date`;
+
+const sql_solar_term_select_year = `SELECT year, month, date, ${fields} FROM solar_term WHERE year = $year`;
+const sql_solar_term_select_term = `SELECT year, month, date, ${fields} FROM solar_term WHERE solar_term = $solar_term`;
 // const sql_solar_term_select = 'SELECT * FROM solar_term WHERE year = $year AND month = $month AND date = $date AND solar_term = $solar_term';
 
 let get_weather = (db) => {

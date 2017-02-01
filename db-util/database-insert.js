@@ -1,10 +1,10 @@
 const sql_weather_insert = `INSERT INTO weather ('year', 'month', 'date', 'pressure', 'temp_max', 'temp_mean', 'temp_min', 'dew_point', 'humidity', 'cloud', 'rainfall', 'sunshine', 'wind_dir', 'wind_speed') VALUES ($year, $month, $date, $pressure, $temp_max, $temp_mean, $temp_min, $dew_point, $humidity, $cloud, $rainfall, $sunshine, $wind_dir, $wind_speed)`;
-const sql_weather_update = `UPDATE weather SET 'pressure'=$pressure, 'temp_max'=$temp_max, 'temp_mean'=$temp_mean, 'temp_min'=$temp_min, 'dew_point'=$dew_point, 'humidity'=$humidity, 'cloud'=$cloud, 'rainfall'=$rainfall, 'sunshine'=$sunshine, 'wind_dir'=$wind_dir, 'wind_speed'=$wind_speed WHERE 'year'=$year AND 'month'=$month AND 'date'=$date`;
-const sql_weather_select_date = 'SELECT * FROM weather WHERE year = $year AND month = $month AND date = $date';
+const sql_weather_update = `UPDATE weather SET pressure=$pressure, temp_max=$temp_max, temp_mean=$temp_mean, temp_min=$temp_min, dew_point=$dew_point, humidity=$humidity, cloud=$cloud, rainfall=$rainfall, sunshine=$sunshine, wind_dir=$wind_dir, wind_speed=$wind_speed WHERE year=$year AND month=$month AND date=$date`;
+const sql_weather_select_date = 'SELECT year, month, date FROM weather WHERE year = $year AND month = $month AND date = $date';
 
 const sql_solar_term_insert = `INSERT INTO solar_term ('year', 'month', 'date', 'solar_term') VALUES ($year, $month, $date, $solar_term)`;
-const sql_solar_term_update = `UPDATE solar_term SET 'solar_term'=$solar_term WHERE year = $year AND month = $month AND date = $date`;
-const sql_solar_term_select_date = 'SELECT * FROM solar_term WHERE year = $year AND month = $month AND date = $date';
+const sql_solar_term_update = `UPDATE solar_term SET solar_term=$solar_term WHERE year = $year AND month = $month AND date = $date`;
+const sql_solar_term_select_date = 'SELECT year, month, date FROM solar_term WHERE year = $year AND month = $month AND date = $date';
 
 let insert_weather_date = (db, data) => {
   return new Promise((resolve, reject) => {
@@ -21,7 +21,8 @@ let insert_weather_date = (db, data) => {
       $rainfall: data.rainfall,
       $sunshine: data.sunshine,
       $wind_dir: data.wind_dir,
-      $wind_speed: data.wind_speed
+      $wind_speed: data.wind_speed,
+      $humidity: data.humidity
     };
 
     db.get(sql_weather_select_date, {

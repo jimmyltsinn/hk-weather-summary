@@ -3,7 +3,7 @@ let database = require('../db-util/database-insert.js');
 
 let download_weather_data = (year) => {
   return new Promise((resolve, reject) => {
-    console.log(`[weather-${year}] Download`); 
+    console.log(`[weather-${year}] Download`);
     request(`http://www.hko.gov.hk/cis/dailyExtract/dailyExtract_${year}.xml`, (err, res, body) => {
       if (err) reject(err);
       try {
