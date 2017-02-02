@@ -1,5 +1,3 @@
-// let _ = require('lodash');
-
 let unorm = require('unorm');
 
 let map = {
@@ -36,12 +34,13 @@ let get_id = (name) => {
     }
   }
   console.error([name]);
-  throw -1;
+  return -1;
+  // throw -1;
 };
 
 let get_name = (id) => {
-  if (id < 1) throw -1;
-  if (id > 24) throw -1;
+  if (id < 1) return undefined;
+  if (id > 24) return undefined;
   return map[id];
 };
 

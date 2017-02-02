@@ -1,16 +1,7 @@
 const fields = 'temp_max, temp_mean, temp_min';
 
 const sql_weather_select_all = `SELECT year, month, date, ${fields} FROM weather`;
-const sql_weather_select_year = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year`;
-const sql_weather_select_month = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year AND month = $month`;
-const sql_weather_select_date = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year AND month = $month AND date = $date`;
-const sql_weather_select_date_by_year = `SELECT year, month, date, ${fields} FROM weather WHERE month = $month AND date = $date`;
-
-const sql_solar_term_select_year = `SELECT year, month, date, ${fields} FROM solar_term WHERE year = $year`;
-const sql_solar_term_select_term = `SELECT year, month, date, ${fields} FROM solar_term WHERE solar_term = $solar_term`;
-// const sql_solar_term_select = 'SELECT * FROM solar_term WHERE year = $year AND month = $month AND date = $date AND solar_term = $solar_term';
-
-let get_weather = (db) => {
+let get_weather_all = (db) => {
   return new Promise((resolve, reject) => {
     db.all(sql_weather_select_all, { }, (err, rows) => {
       if (err) reject(err);
@@ -26,9 +17,10 @@ let get_weather = (db) => {
   });
 };
 
-let get_weather_date = (db, year, month, date) => {
+const sql_weather_select = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year AND month = $month AND date = $date`;
+let get_weather = (db, year, month, date) => {
   return new Promise((resolve, reject) => {
-    db.get(sql_weather_select_date, {
+    db.get(sql_weather_select, {
       $year: year,
       $month: month,
       $date: date
@@ -43,16 +35,17 @@ let get_weather_date = (db, year, month, date) => {
   });
 };
 
-let get_weather_month = (db, year, month) => {
+const sql_weather_select_bydate = `SELECT year, month, date, ${fields} FROM weather WHERE month = $month AND date = $date`;
+let get_weather_bydate = (db, month, date) => {
   return new Promise((resolve, reject) => {
-    db.all(sql_weather_select_month, {
-      $year: year,
-      $month: month
+    db.all(sql_weather_select_bydate, {
+      $month: month,
+      $date: date
     }, (err, rows) => {
       if (err) reject(err);
       let ret = {};
       for (let row of rows) {
-        ret[row.date] = row;
+        ret[row.year] = row;
         delete row.id;
       }
       resolve(ret);
@@ -60,9 +53,10 @@ let get_weather_month = (db, year, month) => {
   });
 };
 
-let get_weather_year = (db, year) => {
+const sql_weather_select_byyear = `SELECT year, month, date, ${fields} FROM weather WHERE year = $year`;
+let get_weather_byyear = (db, year) => {
   return new Promise((resolve, reject) => {
-    db.all(sql_weather_select_year, {
+    db.all(sql_weather_select_byyear, {
       $year: year,
     }, (err, rows) => {
       if (err) reject(err);
@@ -77,9 +71,60 @@ let get_weather_year = (db, year) => {
   });
 };
 
-let get_solar_term_term = (db, term) => {
+const sql_weather_bysolarterm_all = `SELECT weather.year, weather.month, weather.date, solar_term.solar_term, ${fields} FROM weather INNER JOIN solar_term ON weather.year = solar_term.year AND weather.month = solar_term.month AND weather.date = solar_term.date`;
+let get_weather_bysolarterm_all = (db) => {
   return new Promise((resolve, reject) => {
-    db.all(sql_solar_term_select_term, {
+    db.all(sql_weather_bysolarterm_all, { }, (err, rows) => {
+      if (err) reject(err);
+      let ret = {};
+      for (let row of rows) {
+        if (!ret[row.solar_term]) ret[row.solar_term] = {};
+        ret[row.solar_term][row.year] = row;
+        delete row.id;
+      }
+      resolve(ret);
+    });
+  });
+};
+
+const sql_weather_bysolarterm = `SELECT weather.year, weather.month, weather.date, ${fields} FROM weather INNER JOIN solar_term ON weather.year = solar_term.year AND weather.month = solar_term.month AND weather.date = solar_term.date WHERE solar_term.solar_term = $term`;
+let get_weather_bysolarterm = (db, term) => {
+  return new Promise((resolve, reject) => {
+    db.all(sql_weather_bysolarterm, {
+      $term: term
+    }, (err, rows) => {
+      if (err) reject(err);
+      let ret = {};
+      for (let row of rows) {
+        ret[row.year] = row;
+        delete row.id;
+      }
+      resolve(ret);
+    });
+  });
+};
+
+const sql_solarterm_select_all = `SELECT year, month, date, solar_term FROM solar_term`;
+let get_solarterm_all = (db) => {
+  return new Promise((resolve, reject) => {
+    db.all(sql_solarterm_select_all, { }, (err, rows) => {
+      if (err) reject(err);
+      let ret = {};
+      for (let row of rows) {
+        if (!ret[row.solar_term]) ret[row.solar_term] = {};
+        ret[row.solar_term][row.year] = row;
+        delete row.id;
+      }
+      resolve(ret);
+    });
+  });
+};
+
+
+const sql_solarterm_select_byterm = `SELECT year, month, date, solar_term FROM solar_term WHERE solar_term = $solar_term`;
+let get_solarterm_byterm = (db, term) => {
+  return new Promise((resolve, reject) => {
+    db.all(sql_solarterm_select_byterm, {
       $solar_term: term
     }, (err, rows) => {
       if (err) reject(err);
@@ -93,9 +138,10 @@ let get_solar_term_term = (db, term) => {
   });
 };
 
-let get_solar_term_year = (db, year) => {
+const sql_solarterm_select_byyear = `SELECT year, month, date, solar_term FROM solar_term WHERE year = $year`;
+let get_solarterm_byyear = (db, year) => {
   return new Promise((resolve, reject) => {
-    db.all(sql_solar_term_select_year, {
+    db.all(sql_solarterm_select_byyear, {
       $year: year
     }, (err, rows) => {
       if (err) reject(err);
@@ -111,11 +157,17 @@ let get_solar_term_year = (db, year) => {
 
 let database = require('./database.js');
 
+database.get_weather_all = get_weather_all;
 database.get_weather = get_weather;
-database.get_weather_date = get_weather_date;
-database.get_weather_month = get_weather_month;
-database.get_weather_year = get_weather_year;
-database.get_solar_term_year = get_solar_term_year;
-database.get_solar_term_term = get_solar_term_term;
+
+database.get_weather_bydate = get_weather_bydate;
+database.get_weather_byyear = get_weather_byyear;
+
+database.get_weather_bysolarterm_all = get_weather_bysolarterm_all;
+database.get_weather_bysolarterm = get_weather_bysolarterm;
+
+database.get_solarterm_all = get_solarterm_all;
+database.get_solarterm_byyear = get_solarterm_byyear;
+database.get_solarterm_byterm = get_solarterm_byterm;
 
 module.exports = database;

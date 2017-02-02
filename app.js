@@ -1,6 +1,8 @@
 let express = require('express');
-let database = require('./db-util/database-select.js');
 let cors = require('cors');
+
+let database = require('./db-util/database-select.js');
+let solarterm = require('./solar-term.js');
 
 let app = express();
 
@@ -10,30 +12,59 @@ app.use(cors());
 
 app.get('/weather', (req, res) => {
   database.connect()
-    .then(db => database.get_weather(db))
+    .then(db => database.get_weather_all(db))
     .then(data => res.json(data))
     .catch(console.error);
 });
 
 app.get('/weather/:year/:month/:date', (req, res) => {
   database.connect()
-    .then((db) => database.get_weather_date(db, req.params.year, req.params.month, req.params.date))
+    .then((db) => database.get_weather(db, req.params.year, req.params.month, req.params.date))
     .then((data) => res.json(data))
     .catch(console.error);
 });
 
-app.get('/weather/:year/:month', (req, res) => {
+app.get('/weather/solar-term/', (req, res) => {
   database.connect()
-    .then((db) => database.get_weather_month(db, req.params.year, req.params.month))
+    .then(db => database.get_weather_bysolarterm_all(db))
+    .then(data => res.json(data))
+    .catch(console.error);
+});
+
+app.get('/weather/solar-term/:term', (req, res) => {
+  database.connect()
+    .then(db => database.get_weather_bysolarterm(db, req.params.term))
+    .then(data => res.json(data))
+    .catch(console.error);
+});
+
+app.get('/weather/year/:year', (req, res) => {
+  database.connect()
+    .then(db => database.get_weather_byyear(db, req.params.year))
+    .then(data => res.json(data))
+    .catch(console.error);
+});
+
+app.get('/weather/date/:month/:date', (req, res) => {
+  database.connect()
+    .then(db => database.get_weather_bydate(db, req.params.month, req.params.date))
+    .then(data => res.json(data))
+    .catch(console.error);
+});
+
+app.get('/solar-term', (req, res) => {
+  database.connect()
+    .then((db) => database.get_solarterm_all(db))
     .then((data) => res.json(data))
     .catch(console.error);
 });
 
-app.get('/weather/:year', (req, res) => {
-  database.connect()
-    .then((db) => database.get_weather_year(db, req.params.year))
-    .then((data) => res.json(data))
-    .catch(console.error);
+app.get('/solar-term/map', (req, res) => {
+  res.json(solarterm.map);
+});
+
+app.get('/solar-term/id/:id', (req, res) => {
+  res.json(solarterm.get_name(req.params.id));
 });
 
 app.get('/solar-term/year/:year', (req, res) => {
@@ -42,7 +73,7 @@ app.get('/solar-term/year/:year', (req, res) => {
     res.send('Invalid input for year. ');
   }
   database.connect()
-    .then((db) => database.get_solar_term_year(db, req.params.year))
+    .then((db) => database.get_solarterm_byyear(db, req.params.year))
     .then((data) => res.json(data))
     .catch(console.error);
 });
@@ -53,7 +84,7 @@ app.get('/solar-term/term/:term', (req, res) => {
     res.send('Invalid input for solar term. ');
   }
   database.connect()
-    .then((db) => database.get_solar_term_term(db, req.params.term))
+    .then((db) => database.get_solarterm_byterm(db, req.params.term))
     .then((data) => res.json(data))
     .catch(console.error);
 });
