@@ -17,13 +17,6 @@ app.get('/weather', (req, res) => {
     .catch(console.error);
 });
 
-app.get('/weather/:year/:month/:date', (req, res) => {
-  database.connect()
-    .then((db) => database.get_weather(db, req.params.year, req.params.month, req.params.date))
-    .then((data) => res.json(data))
-    .catch(console.error);
-});
-
 app.get('/weather/solar-term/', (req, res) => {
   database.connect()
     .then(db => database.get_weather_bysolarterm_all(db))
@@ -49,6 +42,13 @@ app.get('/weather/date/:month/:date', (req, res) => {
   database.connect()
     .then(db => database.get_weather_bydate(db, req.params.month, req.params.date))
     .then(data => res.json(data))
+    .catch(console.error);
+});
+
+app.get('/weather/:year/:month/:date', (req, res) => {
+  database.connect()
+    .then((db) => database.get_weather(db, req.params.year, req.params.month, req.params.date))
+    .then((data) => res.json(data))
     .catch(console.error);
 });
 
