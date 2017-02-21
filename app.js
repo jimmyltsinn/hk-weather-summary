@@ -8,7 +8,9 @@ let app = express();
 
 let port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://jimmyltsinn.github.io'
+}));
 
 app.get('/weather', (req, res) => {
   database.connect()
